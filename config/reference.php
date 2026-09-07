@@ -1388,7 +1388,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *             limiter?: scalar|Param|null, // A service id implementing "Symfony\Component\HttpFoundation\RateLimiter\RequestRateLimiterInterface".
  *             max_attempts?: int|Param, // Default: 5
  *             interval?: scalar|Param|null, // Default: "1 minute"
- *             lock_factory?: scalar|Param|null, // The service ID of the lock factory used by the login rate limiter (or null to disable locking). // Default: null
+ *             lock_factory?: scalar|Param|null, // The service ID of the lock factory used by the login rate limiter ("auto" to use the default one when the Lock component is configured, or null to disable locking). // Default: "auto"
  *             cache_pool?: string|Param, // The cache pool to use for storing the limiter state // Default: "cache.rate_limiter"
  *             storage_service?: string|Param, // The service ID of a custom storage implementation, this precedes any configured "cache_pool" // Default: null
  *         },
@@ -1583,9 +1583,9 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *             lifetime?: int|Param, // Default: 31536000
  *             path?: scalar|Param|null, // Default: "/"
  *             domain?: scalar|Param|null, // Default: null
- *             secure?: true|false|"auto"|Param, // Default: false
+ *             secure?: true|false|"auto"|Param, // Default: "auto"
  *             httponly?: bool|Param, // Default: true
- *             samesite?: null|"lax"|"strict"|"none"|Param, // Default: null
+ *             samesite?: null|"lax"|"strict"|"none"|Param, // Default: "lax"
  *             always_remember_me?: bool|Param, // Default: false
  *             remember_me_parameter?: scalar|Param|null, // Default: "_remember_me"
  *         },
@@ -1759,9 +1759,9 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     failure_status_code?: int|Param, // Default: 502
  *     mailer?: bool|array{
  *         enabled?: bool|Param, // Default: false
- *         recipient: list<scalar|Param|null>,
- *         sender: scalar|Param|null,
- *         subject: scalar|Param|null,
+ *         recipient?: Param|string|list<scalar|Param|null>,
+ *         sender?: scalar|Param|null,
+ *         subject?: scalar|Param|null,
  *         send_on_warning?: bool|Param, // Default: true
  *     },
  *     default_group?: scalar|Param|null, // Default: "default"
@@ -1797,9 +1797,9 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *             },
  *             doctrine_dbal?: mixed, // Connection name or an array of connection names // Default: null
  *             doctrine_mongodb?: mixed, // Connection name or an array of connection names // Default: null
- *             doctrine_migrations?: array<string, string|array{ // Default: []
+ *             doctrine_migrations?: Param|string|array<string, Param|string|array{ // Default: []
  *                 configuration_file?: scalar|Param|null, // Absolute path to doctrine migrations configuration
- *                 connection: scalar|Param|null, // Connection name from doctrine DBAL configuration
+ *                 connection?: scalar|Param|null, // Connection name from doctrine DBAL configuration
  *             }>,
  *             memcache?: array<string, array{ // Default: []
  *                 host?: scalar|Param|null, // Default: "localhost"
@@ -1809,7 +1809,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *                 host?: scalar|Param|null, // Default: "localhost"
  *                 port?: int|Param, // Default: 11211
  *             }>,
- *             redis?: array<string, array{ // Default: []
+ *             redis?: Param|string|array<string, array{ // Default: []
  *                 host?: scalar|Param|null, // Default: "localhost"
  *                 port?: int|Param, // Default: 6379
  *                 password?: scalar|Param|null, // Default: null
@@ -1831,7 +1831,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *                 method?: scalar|Param|null, // Default: "GET"
  *                 body?: scalar|Param|null, // Default: null
  *             }>,
- *             rabbit_mq?: array<string, array{ // Default: []
+ *             rabbit_mq?: Param|string|array<string, array{ // Default: []
  *                 host?: scalar|Param|null, // Default: "localhost"
  *                 port?: int|Param, // Default: 5672
  *                 user?: scalar|Param|null, // Default: "guest"
@@ -1841,7 +1841,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *             }>,
  *             symfony_version?: bool|Param, // Checks the version of this app against the latest stable release
  *             custom_error_pages?: array{ // Checks if error pages have been customized for given error codes
- *                 error_codes: list<scalar|Param|null>,
+ *                 error_codes?: list<scalar|Param|null>,
  *                 path?: scalar|Param|null, // The directory where your custom error page twig templates are located. Keep as "%kernel.project_dir%" to use default location. // Default: "%kernel.project_dir%"
  *                 controller?: scalar|Param|null, // Deprecated: The custom error page controller option is no longer used; the corresponding config parameter was deprecated in 2.13 and will be dropped in 3.0. // Default: null
  *             },
@@ -1860,12 +1860,12 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *                 timeout?: int|Param, // Default: 1
  *             }>,
  *             messenger_transports?: array<string, array{ // Default: []
- *                 critical_threshold: int|Param,
+ *                 critical_threshold?: int|Param,
  *                 warning_threshold?: int|Param, // Default: null
  *                 service?: scalar|Param|null, // Default: null
  *             }>,
  *             expressions?: array<string, array{ // Default: []
- *                 label: scalar|Param|null,
+ *                 label?: scalar|Param|null,
  *                 warning_expression?: scalar|Param|null, // Default: null
  *                 critical_expression?: scalar|Param|null, // Default: null
  *                 warning_message?: scalar|Param|null, // Default: null
@@ -1873,6 +1873,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *             }>,
  *         }>,
  *     },
+ *     ...<string, mixed>
  * }
  * @psalm-type ConfigType = array{
  *     imports?: ImportsConfig,

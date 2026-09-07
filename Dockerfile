@@ -1,7 +1,9 @@
 # Stage 1 : image PHP finale
-FROM php:8.3-cli AS runner
+FROM php:8.5-cli AS runner
 
 WORKDIR /app
+
+RUN echo "expose_php=Off" > /usr/local/etc/php/conf.d/security.ini
 
 
 # Installation des dépendances système et des extensions PHP nécessaires

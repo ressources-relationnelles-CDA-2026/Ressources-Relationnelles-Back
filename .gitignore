@@ -22,3 +22,8 @@
 /phpunit.xml
 /.phpunit.cache/
 ###< phpunit/phpunit ###
+
+
+###> OpenSSL ###
+/.rnd
+###< OpenSSL ###

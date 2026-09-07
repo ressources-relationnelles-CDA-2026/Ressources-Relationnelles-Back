@@ -53,7 +53,6 @@ final class CommentairesTest extends TestCase
     private function setPrivateId(Commentaires $commentaire, int $id): void
     {
         $reflectionProperty = new \ReflectionProperty(Commentaires::class, 'id');
-        $reflectionProperty->setAccessible(true);
         $reflectionProperty->setValue($commentaire, $id);
     }
 }
