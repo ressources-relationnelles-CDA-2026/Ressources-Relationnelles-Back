@@ -7,7 +7,6 @@ use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
 use App\State\CommentaireCreateProcessor;
 use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Serializer\Attribute\Groups;
@@ -17,14 +16,11 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: AdorerRepository::class)]
 #[ApiResource(
     operations: [
-        new Get(),
-        new GetCollection(),
+        new Get(security: "is_granted('ROLE_ADMIN') or object.getUtilisateur() == user"),
+        new GetCollection(security: "is_granted('ROLE_ADMIN')"),
         new Post(
             security: "is_granted('ROLE_USER')",
             processor: CommentaireCreateProcessor::class
-        ),
-        new Put(
-            security: "is_granted('ADORER_EDIT', object)"
         ),
         new Delete(
             security: "is_granted('ADORER_DELETE', object)"
@@ -42,11 +38,11 @@ class Adorer
     private ?int $id = null;
 
     #[ORM\Column]
-    #[Groups(['adorer:read', 'adorer:write', 'resource:read'])]
+    #[Groups(['adorer:read', 'resource:read'])]
     private ?\DateTime $dateAdorer = null;
 
     #[ORM\ManyToOne(inversedBy: 'adorers')]
-    #[Groups(['adorer:read', 'adorer:write', 'resource:read'])]
+    #[Groups(['adorer:read', 'resource:read'])]
     private ?Utilisateurs $utilisateur = null;
 
     #[Groups(['adorer:write'])]
@@ -54,7 +50,7 @@ class Adorer
     private ?int $idResource = null;
 
     #[ORM\ManyToOne(inversedBy: 'adorers')]
-    #[Groups(['adorer:read', 'adorer:write'])]
+    #[Groups(['adorer:read'])]
     private ?Ressources $resource = null;
 
     public function getId(): ?int

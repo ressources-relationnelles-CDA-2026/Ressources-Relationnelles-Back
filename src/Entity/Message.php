@@ -14,13 +14,13 @@ use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Serializer\Attribute\Groups;
 use App\Repository\MessageRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: MessageRepository::class)]
 #[ORM\Table(name: 'MESSAGES')]
 #[ApiResource(
     operations: [
-        new Get(),
-        new GetCollection(),
+        new Get(security: "is_granted('MESSAGE_VIEW', object)"),
         new GetCollection(
             uriTemplate: '/messages/recus',
             provider: MessagesRecusProvider::class,
@@ -30,8 +30,8 @@ use Doctrine\ORM\Mapping as ORM;
             security: "is_granted('ROLE_USER')",
             processor: CommentaireCreateProcessor::class
         ),
-        new Put(),
-        new Delete(),
+        new Put(security: "is_granted('MESSAGE_EDIT', object)"),
+        new Delete(security: "is_granted('MESSAGE_DELETE', object)"),
     ],
     normalizationContext: ['groups' => ['message:read']],
     denormalizationContext: ['groups' => ['message:write']]
@@ -46,6 +46,7 @@ class Message
 
     #[ORM\Column(type: 'text')]
     #[Groups(['message:read', 'message:write'])]
+    #[Assert\NotBlank(message: 'Le contenu du message est obligatoire.')]
     private ?string $contenu = null;
 
     #[ORM\Column(name: 'piece_jointe', nullable: true)]
@@ -53,17 +54,17 @@ class Message
     private ?string $pieceJointe = null;
 
     #[ORM\Column(name: 'date_envoie', type: 'datetime')]
-    #[Groups(['message:read', 'message:write'])]
+    #[Groups(['message:read'])]
     private ?\DateTimeInterface $dateEnvoie = null;
 
     #[ORM\ManyToOne(targetEntity: Utilisateurs::class, inversedBy: 'messagesEnvoyes')]
     #[ORM\JoinColumn(name: 'id_Utilisateurs_1', referencedColumnName: 'id', nullable: false)]
-    #[Groups(['message:read', 'message:write'])]
+    #[Groups(['message:read'])]
     private ?Utilisateurs $expediteur = null;
 
     #[ORM\ManyToOne(targetEntity: Utilisateurs::class, inversedBy: 'messagesRecus')]
     #[ORM\JoinColumn(name: 'id_Utilisateurs_2', referencedColumnName: 'id', nullable: false)]
-    #[Groups(['message:read', 'message:write'])]
+    #[Groups(['message:read'])]
     private ?Utilisateurs $destinataire = null;
 
     #[Groups(['message:write'])]

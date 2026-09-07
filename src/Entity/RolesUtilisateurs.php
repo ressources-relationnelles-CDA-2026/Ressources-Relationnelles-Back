@@ -18,11 +18,11 @@ use App\Repository\RolesUtilisateursRepository;
 #[ORM\Entity(repositoryClass: RolesUtilisateursRepository::class)]
 #[ApiResource(
     operations: [
-        new Get(),
-        new GetCollection(),
-        new Post(),
-        new Put(),
-        new Delete(),
+        new Get(security: "is_granted('ROLE_ADMIN')"),
+        new GetCollection(security: "is_granted('ROLE_ADMIN')"),
+        new Post(security: "is_granted('ROLE_ADMIN')"),
+        new Put(security: "is_granted('ROLE_ADMIN')"),
+        new Delete(security: "is_granted('ROLE_ADMIN')"),
     ],
     normalizationContext: ['groups' => ['roles_utilisateurs:read']],
     denormalizationContext: ['groups' => ['roles_utilisateurs:write']]

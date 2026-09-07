@@ -1,0 +1,10 @@
+liip_monitor:
+    enable_controller: true
+
+    checks:
+        doctrine_dbal:
+            default: default
+
+        php_extensions:
+            - json
+            - pdo_mysql

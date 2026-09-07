@@ -17,14 +17,14 @@ use App\Repository\ConsultationsRepository;
 #[ORM\Entity(repositoryClass: ConsultationsRepository::class)]
 #[ApiResource(
     operations: [
-        new Get(),
-        new GetCollection(),
+        new Get(security: "is_granted('ROLE_ADMIN') or object.getUtilisateur() == user"),
+        new GetCollection(security: "is_granted('ROLE_ADMIN')"),
         new Post(
             security: "is_granted('ROLE_USER')",
             processor: CommentaireCreateProcessor::class
         ),
-        new Put(),
-        new Delete(),
+            new Put(security: "is_granted('ROLE_ADMIN')"),
+            new Delete(security: "is_granted('ROLE_ADMIN') or object.getUtilisateur() == user"),
     ],
     normalizationContext: ['groups' => ['consultations:read']],
     denormalizationContext: ['groups' => ['consultations:write']]
@@ -38,15 +38,15 @@ class Consultations
     private ?int $id = null;
 
     #[ORM\Column]
-    #[Groups(['consultations:read', 'consultations:write', 'resource:read'])]
+        #[Groups(['consultations:read', 'resource:read'])]
     private ?\DateTime $dateConsultation = null;
 
     #[ORM\ManyToOne(inversedBy: 'consultations')]
-    #[Groups(['consultations:read', 'consultations:write'])]
+        #[Groups(['consultations:read'])]
     private ?Utilisateurs $utilisateur = null;
 
     #[ORM\ManyToOne(inversedBy: 'consultations')]
-    #[Groups(['consultations:read', 'consultations:write'])]
+        #[Groups(['consultations:read'])]
     private ?Ressources $resource = null;
 
     #[Groups(['consultations:write'])]

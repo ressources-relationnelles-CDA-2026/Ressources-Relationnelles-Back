@@ -10,6 +10,7 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use Symfony\Component\Serializer\Attribute\Groups;
 use App\Repository\PartagesRepository;
+use App\State\PartageCreateProcessor;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PartagesRepository::class)]
@@ -18,12 +19,10 @@ use Doctrine\ORM\Mapping as ORM;
         new Get(
             security: "is_granted('PARTAGE_VIEW', object)"
         ),
-        new GetCollection(),
+        new GetCollection(security: "is_granted('ROLE_ADMIN')"),
         new Post(
-            security: "is_granted('ROLE_USER')"
-        ),
-        new Put(
-            security: "is_granted('PARTAGE_EDIT', object)"
+            security: "is_granted('ROLE_USER')",
+            processor: PartageCreateProcessor::class
         ),
         new Delete(
             security: "is_granted('PARTAGE_DELETE', object)"
@@ -41,11 +40,11 @@ class Partages
     private ?int $id = null;
 
     #[ORM\Column]
-    #[Groups(['partages:read', 'partages:write', 'resource:read'])]
+    #[Groups(['partages:read', 'resource:read'])]
     private ?\DateTime $datePartage = null;
 
     #[ORM\ManyToOne(inversedBy: 'partages')]
-    #[Groups(['partages:read', 'partages:write', 'resource:read'])]
+    #[Groups(['partages:read', 'resource:read'])]
     private ?Utilisateurs $utilisateur = null;
 
     #[ORM\ManyToOne(inversedBy: 'partages')]

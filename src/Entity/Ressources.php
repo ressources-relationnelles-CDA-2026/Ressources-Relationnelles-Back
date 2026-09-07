@@ -19,6 +19,7 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Serializer\Attribute\SerializedName;
+use Symfony\Component\Validator\Constraints as Assert;
 
 enum VisibiliteStatut: string
 {
@@ -81,10 +82,22 @@ class Ressources
 
     #[ORM\Column(length: 255)]
     #[Groups(['resource:read', 'resource:write'])]
+    #[Assert\NotBlank(message: 'Le titre est obligatoire.')]
+    #[Assert\Length(
+        min: 3,
+        max: 255,
+        minMessage: 'Le titre doit contenir au moins {{ limit }} caractères.',
+        maxMessage: 'Le titre ne peut pas dépasser {{ limit }} caractères.'
+    )]
     private ?string $titre = null;
 
     #[ORM\Column(type: Types::TEXT)]
     #[Groups(['resource:read', 'resource:write'])]
+    #[Assert\NotBlank(message: 'Le contenu est obligatoire.')]
+    #[Assert\Length(
+        min: 10,
+        minMessage: 'Le contenu doit contenir au moins {{ limit }} caractères.'
+    )]
     private ?string $contenu = null;
 
     #[ORM\Column]
@@ -101,6 +114,7 @@ class Ressources
 
     #[ORM\Column]
     #[Groups(['resource:read', 'resource:write', 'resource:admin_write'])]
+    #[Assert\NotNull(message: 'La visibilité est obligatoire.')]
     private ?bool $estVisible = true;
 
     #[ORM\Column(type: 'string', enumType: VisibiliteStatut::class, length: 10)]
@@ -121,6 +135,7 @@ class Ressources
     )]
     #[ApiProperty(readableLink: true)]
     #[Groups(['resource:read', 'resource:write'])]
+    #[Assert\NotNull(message: 'La catégorie est obligatoire.')]
     private ?Categories $categorie = null;
 
     #[ORM\OneToMany(

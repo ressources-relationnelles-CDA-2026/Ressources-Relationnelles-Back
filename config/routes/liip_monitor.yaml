@@ -1,0 +1,3 @@
+_liip_monitor:
+    resource: "@LiipMonitorBundle/Resources/config/routing.xml"
+    prefix: /health

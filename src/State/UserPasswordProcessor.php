@@ -19,8 +19,9 @@ class UserPasswordProcessor implements ProcessorInterface
     public function process($data, Operation $operation, array $uriVariables = [], array $context = [])
     {
         if ($data instanceof Utilisateurs) {
-            if ($data->getPlainPassword()) {
-                $hash = $this->passwordHasher->hashPassword($data, $data->getPlainPassword());
+            $plainPassword = $data->getPlainPassword();
+            if ($plainPassword !== null && $plainPassword !== '') {
+                $hash = $this->passwordHasher->hashPassword($data, $plainPassword);
                 $data->setMotDePasse($hash);
                 $data->eraseCredentials();
             }

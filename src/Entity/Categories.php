@@ -13,15 +13,16 @@ use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Serializer\Attribute\Groups;
 use App\Repository\CategoriesRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: CategoriesRepository::class)]
 #[ApiResource(
     operations: [
         new Get(),
         new GetCollection(),
-        new Post(),
-        new Put(),
-        new Delete(),
+        new Post(security: "is_granted('ROLE_ADMIN')"),
+        new Put(security: "is_granted('ROLE_ADMIN')"),
+        new Delete(security: "is_granted('ROLE_ADMIN')"),
     ],
     normalizationContext: ['groups' => ['categories:read']],
     denormalizationContext: ['groups' => ['categories:write']]
@@ -36,10 +37,17 @@ class Categories
 
     #[ORM\Column(length: 255)]
     #[Groups(['categories:read', 'categories:write', 'resource:read'])]
+    #[Assert\NotBlank(message: 'Le libellé de la catégorie est obligatoire.')]
+    #[Assert\Length(
+        max: 255,
+        maxMessage: 'Le libellé de la catégorie ne peut pas dépasser {{ limit }} caractères.'
+    )]
     private ?string $libelle = null;
 
     #[ORM\Column(length: 255)]
     #[Groups(['categories:read', 'categories:write', 'resource:read'])]
+    #[Assert\NotBlank(message: 'La couleur de la catégorie est obligatoire.')]
+    #[Assert\CssColor(message: 'La couleur indiquée n’est pas valide.')]
     private ?string $couleur = null;
 
     #[ORM\OneToMany(targetEntity: Ressources::class, mappedBy: 'categorie')]

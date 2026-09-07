@@ -15,11 +15,11 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: MediasRepository::class)]
 #[ApiResource(
     operations: [
-        new Get(),
-        new GetCollection(),
-        new Post(),
-        new Put(),
-        new Delete(),
+        new Get(security: "is_granted('ROLE_ADMIN') or (object.getResource() and object.getResource().getUtilisateur() == user)"),
+        new GetCollection(security: "is_granted('ROLE_ADMIN')"),
+        new Post(security: "is_granted('ROLE_ADMIN')"),
+        new Put(security: "is_granted('ROLE_ADMIN') or (object.getResource() and object.getResource().getUtilisateur() == user)"),
+        new Delete(security: "is_granted('ROLE_ADMIN') or (object.getResource() and object.getResource().getUtilisateur() == user)"),
     ],
     normalizationContext: ['groups' => ['medias:read']],
     denormalizationContext: ['groups' => ['medias:write']]

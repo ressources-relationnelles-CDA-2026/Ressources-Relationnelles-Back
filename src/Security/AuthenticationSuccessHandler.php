@@ -3,7 +3,6 @@
 namespace App\Security;
 
 use App\Entity\Utilisateurs;
-use App\Service\LoginAttemptService;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -14,18 +13,12 @@ use Symfony\Component\HttpFoundation\Cookie;
 class AuthenticationSuccessHandler implements AuthenticationSuccessHandlerInterface
 {
     public function __construct(
-        private LoginAttemptService $loginAttemptService,
         private JWTTokenManagerInterface $jwtManager
     ) {}
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token): JsonResponse
     {
-        $email = $token->getUserIdentifier();
         $user = $token->getUser();
-
-        if ($email) {
-            $this->loginAttemptService->recordSuccessfulAttempt($email);
-        }
 
         $jwt = $this->jwtManager->create($token->getUser());
 

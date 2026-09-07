@@ -1,7 +1,9 @@
 # Stage 1 : image PHP finale
-FROM php:8.3-cli AS runner
+FROM php:8.5-cli AS runner
 
 WORKDIR /app
+
+RUN echo "expose_php=Off" > /usr/local/etc/php/conf.d/security.ini
 
 
 # Installation des dépendances système et des extensions PHP nécessaires
@@ -69,6 +71,9 @@ USER www-data
 # Port utilisé par l'API
 EXPOSE 8000
 
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD curl -f http://localhost:8000/health/ || exit 1
 
 # Démarrage du serveur Symfony
 CMD ["symfony", "server:start", "--allow-http", "--no-tls", "--listen-ip=0.0.0.0"]

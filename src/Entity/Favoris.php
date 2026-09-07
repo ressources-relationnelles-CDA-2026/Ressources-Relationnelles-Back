@@ -7,7 +7,6 @@ use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
 use App\State\CommentaireCreateProcessor;
 use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Serializer\Attribute\Groups;
@@ -17,14 +16,11 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: FavorisRepository::class)]
 #[ApiResource(
     operations: [
-        new Get(),
-        new GetCollection(),
+        new Get(security: "is_granted('ROLE_ADMIN') or object.getUtilisateur() == user"),
+        new GetCollection(security: "is_granted('ROLE_ADMIN')"),
         new Post(
             security: "is_granted('ROLE_USER')",
             processor: CommentaireCreateProcessor::class
-        ),
-        new Put(
-            security: "is_granted('FAVORI_EDIT', object)"
         ),
         new Delete(
             security: "is_granted('FAVORI_DELETE', object)"
@@ -42,7 +38,7 @@ class Favoris
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'favoris')]
-    #[Groups(['favoris:read', 'favoris:write', 'resource:read'])]
+    #[Groups(['favoris:read', 'resource:read'])]
     private ?Utilisateurs $utilisateur = null;
 
     #[Groups(['favoris:write'])]
@@ -50,7 +46,7 @@ class Favoris
     private ?int $idResource = null;
 
     #[ORM\ManyToOne(inversedBy: 'favoris')]
-    #[Groups(['favoris:read', 'favoris:write', 'resource:read'])]
+    #[Groups(['favoris:read'])]
     private ?Ressources $resource = null;
 
     public function getId(): ?int

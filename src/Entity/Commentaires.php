@@ -17,6 +17,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: CommentairesRepository::class)]
 #[ApiResource(
@@ -49,6 +50,13 @@ class Commentaires
 
     #[ORM\Column(type: Types::TEXT)]
     #[Groups(['commentaires:read', 'commentaires:write', 'resource:read'])]
+    #[Assert\NotBlank(message: 'Le commentaire ne peut pas être vide.')]
+    #[Assert\Length(
+        min: 1,
+        max: 5000,
+        minMessage: 'Le commentaire doit contenir au moins {{ limit }} caractère.',
+        maxMessage: 'Le commentaire ne peut pas dépasser {{ limit }} caractères.'
+    )]
     private ?string $contenu = null;
 
     #[ORM\Column]
@@ -63,6 +71,7 @@ class Commentaires
 
     #[ORM\ManyToOne(inversedBy: 'commentaires')]
     #[Groups(['commentaires:read', 'commentaires:write'])]
+    #[Assert\NotNull(message: 'La ressource associée au commentaire est obligatoire.')]
     private ?Ressources $resource = null;
 
     #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'commentaires', cascade: ['remove'])]

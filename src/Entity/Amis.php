@@ -18,14 +18,14 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'AMIS')]
 #[ApiResource(
     operations: [
-        new Get(),
-        new GetCollection(),
+        new Get(security: "is_granted('ROLE_ADMIN') or object.getDemandeur() == user or object.getAmi() == user"),
+        new GetCollection(security: "is_granted('ROLE_ADMIN')"),
         new Post(
             security: "is_granted('ROLE_USER')",
             processor: CommentaireCreateProcessor::class
         ),
-        new Put(),
-        new Delete(),
+        new Put(security: "is_granted('ROLE_ADMIN') or object.getDemandeur() == user or object.getAmi() == user"),
+        new Delete(security: "is_granted('ROLE_ADMIN') or object.getDemandeur() == user or object.getAmi() == user"),
     ],
     normalizationContext: ['groups' => ['amis:read']],
     denormalizationContext: ['groups' => ['amis:write']]
@@ -48,12 +48,12 @@ class Amis
 
     #[ORM\ManyToOne(targetEntity: Utilisateurs::class, inversedBy: 'demandesAmisEnvoyees')]
     #[ORM\JoinColumn(name: 'id_utilisateur', referencedColumnName: 'id', nullable: false)]
-    #[Groups(['amis:read', 'amis:write'])]
+    #[Groups(['amis:read'])]
     private ?Utilisateurs $demandeur = null;
 
     #[ORM\ManyToOne(targetEntity: Utilisateurs::class, inversedBy: 'demandesAmisRecues')]
     #[ORM\JoinColumn(name: 'id_utilisateur_2', referencedColumnName: 'id', nullable: false)]
-    #[Groups(['amis:read', 'amis:write'])]
+    #[Groups(['amis:read'])]
     private ?Utilisateurs $ami = null;
 
     #[Groups(['amis:write'])]

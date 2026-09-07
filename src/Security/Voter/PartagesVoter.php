@@ -48,7 +48,8 @@ class PartagesVoter extends Voter
 
     private function canView(Partages $partage, Utilisateurs $user): bool
     {
-        return true;
+        return $partage->getUtilisateur() === $user
+            || $partage->getUtilisateur2() === $user;
     }
 
     private function canEdit(Partages $partage, Utilisateurs $user): bool

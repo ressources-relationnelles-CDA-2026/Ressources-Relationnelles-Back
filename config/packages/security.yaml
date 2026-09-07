@@ -17,6 +17,9 @@ security:
             pattern: ^/api/login_check
             stateless: true
             provider: app_user_provider
+            login_throttling:
+                max_attempts: 3
+                interval: '5 minutes'
             json_login:
                 check_path: /api/login_check
                 username_path: email
@@ -44,4 +47,5 @@ security:
         - { path: ^/api/tags, roles: PUBLIC_ACCESS, methods: [GET] }
         - { path: ^/api/categories, roles: PUBLIC_ACCESS, methods: [GET] }
         - { path: ^/api/types, roles: PUBLIC_ACCESS, methods: [GET] }
+        - { path: ^/api/me, roles: IS_AUTHENTICATED_FULLY, methods: [GET] }
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }

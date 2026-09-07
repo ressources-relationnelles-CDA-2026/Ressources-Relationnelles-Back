@@ -18,19 +18,24 @@ use App\State\UserPasswordProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UtilisateursRepository::class)]
 #[ApiResource(
     operations: [
-        new Get(),
-        new GetCollection(),
+        new Get(security: "is_granted('ROLE_ADMIN') or object == user"),
+        new GetCollection(security: "is_granted('ROLE_ADMIN')"),
         new Post(processor: UserPasswordProcessor::class),
-        new Put(processor: UserPasswordProcessor::class),
+        new Put(
+            security: "is_granted('ROLE_ADMIN') or object == user",
+            processor: UserPasswordProcessor::class,
+            denormalizationContext: ['groups' => ['utilisateurs:profile:write']]
+        ),
         new Patch(
             security: "is_granted('ROLE_USER') and object == user",
             denormalizationContext: ['groups' => ['utilisateurs:profile:write']]
         ),
-        new Delete(),
+        new Delete(security: "is_granted('ROLE_ADMIN')"),
     ],
     normalizationContext: ['groups' => ['utilisateurs:read']],
     denormalizationContext: ['groups' => ['utilisateurs:write']]
@@ -45,18 +50,42 @@ class Utilisateurs implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 255)]
     #[Groups(['utilisateurs:read', 'utilisateurs:write', 'utilisateurs:profile:write', 'resource:read', 'commentaires:read', 'amis:read', 'message:read'])]
+    #[Assert\NotBlank(message: 'Le nom est obligatoire.')]
+    #[Assert\Length(
+        max: 255,
+        maxMessage: 'Le nom ne peut pas dépasser {{ limit }} caractères.'
+    )]
     private ?string $nom = null;
 
     #[ORM\Column(length: 255)]
     #[Groups(['utilisateurs:read', 'utilisateurs:write', 'utilisateurs:profile:write', 'resource:read', 'commentaires:read', 'amis:read', 'message:read'])]
+    #[Assert\NotBlank(message: 'Le prénom est obligatoire.')]
+    #[Assert\Length(
+        max: 255,
+        maxMessage: 'Le prénom ne peut pas dépasser {{ limit }} caractères.'
+    )]
     private ?string $prenom = null;
 
     #[ORM\Column(length: 255)]
     #[Groups(['utilisateurs:read', 'utilisateurs:write', 'utilisateurs:profile:write', 'resource:read'])]
+    #[Assert\Length(
+        max: 255,
+        maxMessage: 'Le numéro de téléphone ne peut pas dépasser {{ limit }} caractères.'
+    )]
+    #[Assert\Regex(
+        pattern: '/^(?:(?:\+|00)33|0)\s*[1-9](?:[\s.-]*\d{2}){4}$/',
+        message: 'Le numéro de téléphone n’est pas valide.'
+    )]
     private ?string $telephone = null;
 
     #[ORM\Column(length: 255)]
     #[Groups(['utilisateurs:read', 'utilisateurs:write', 'utilisateurs:profile:write', 'resource:read'])]
+    #[Assert\NotBlank(message: 'L’adresse e-mail est obligatoire.')]
+    #[Assert\Email(message: 'L’adresse e-mail n’est pas valide.')]
+    #[Assert\Length(
+        max: 255,
+        maxMessage: 'L’adresse e-mail ne peut pas dépasser {{ limit }} caractères.'
+    )]
     private ?string $email = null;
 
     #[ORM\Column(length: 255)]
@@ -64,6 +93,13 @@ class Utilisateurs implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 255)]
     #[Groups(['utilisateurs:read', 'utilisateurs:write', 'utilisateurs:profile:write', 'resource:read', 'commentaires:read', 'amis:read', 'message:read'])]
+    #[Assert\NotBlank(message: 'Le pseudo est obligatoire.')]
+    #[Assert\Length(
+        min: 3,
+        max: 255,
+        minMessage: 'Le pseudo doit contenir au moins {{ limit }} caractères.',
+        maxMessage: 'Le pseudo ne peut pas dépasser {{ limit }} caractères.'
+    )]
     private ?string $pseudo = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -71,16 +107,16 @@ class Utilisateurs implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $photoProfil = null;
 
     #[ORM\Column]
-    #[Groups(['utilisateurs:read', 'utilisateurs:write', 'resource:read'])]
+    #[Groups(['utilisateurs:read', 'resource:read'])]
     private ?bool $statusCompte = null;
 
     #[ORM\Column]
-    #[Groups(['utilisateurs:read', 'utilisateurs:write', 'resource:read'])]
+    #[Groups(['utilisateurs:read', 'resource:read'])]
     private ?\DateTime $dateCreation = null;
 
     #[ORM\ManyToOne(inversedBy: 'utilisateurs')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['utilisateurs:write'])]
+    #[Groups(['utilisateurs:read'])]
     private ?RolesUtilisateurs $role = null;
 
     #[ORM\OneToMany(targetEntity: RefreshToken::class, mappedBy: 'utilisateur')]
@@ -115,8 +151,16 @@ class Utilisateurs implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['utilisateurs:read'])]
     private Collection $favoris;
 
-    #[Groups(['utilisateurs:write'])]
+    #[Groups(['utilisateurs:write', 'utilisateurs:profile:write'])]
     #[SerializedName('password')]
+    #[Assert\NotBlank(
+        message: 'Le mot de passe est obligatoire.',
+        groups: ['Default']
+    )]
+    #[Assert\Length(
+        min: 8,
+        minMessage: 'Le mot de passe doit contenir au moins {{ limit }} caractères.'
+    )]
     private ?string $plainPassword = null;
 
     public function __construct()

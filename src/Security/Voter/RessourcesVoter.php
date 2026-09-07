@@ -77,7 +77,15 @@ class RessourcesVoter extends Voter
         }
 
         if ($user instanceof Utilisateurs && $ressource->getVisibilite() === VisibiliteStatut::AMI) {
-            return true;
+            $owner = $ressource->getUtilisateur();
+
+            if ($owner === null || $owner === $user) {
+                return false;
+            }
+
+            $relation = $this->amisRepository->relationExiste($user->getId(), $owner->getId());
+
+            return $relation !== null && $relation->getStatut() === 'accepte';
         }
 
         return false;

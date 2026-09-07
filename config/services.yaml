@@ -38,6 +38,10 @@ services:
             $persistProcessor: "@api_platform.doctrine.orm.state.persist_processor"
             $security: "@security.helper"
 
+    App\State\PartageCreateProcessor:
+        arguments:
+            $persistProcessor: "@api_platform.doctrine.orm.state.persist_processor"
+
     App\State\CommentaireCreateProcessor:
         arguments:
             $persistProcessor: "@api_platform.doctrine.orm.state.persist_processor"
