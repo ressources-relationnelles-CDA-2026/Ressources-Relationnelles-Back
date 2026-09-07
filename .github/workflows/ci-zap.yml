@@ -47,7 +47,7 @@ jobs:
       - name: Installation de PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: "8.5"
+          php-version: "8.3"
           extensions: intl, pdo_mysql, zip
           coverage: none
 
@@ -62,7 +62,11 @@ jobs:
 
       - name: Démarrage de l'API
         run: |
-          php -d expose_php=0 -S 0.0.0.0:8000 -t public > /tmp/api.log 2>&1 &
+          php -d variables_order=EGPCS \
+              -d expose_php=0 \
+              -S 0.0.0.0:8000 \
+              -t public > /tmp/api.log 2>&1 &
+
           echo $! > api.pid
 
       - name: Attente du démarrage
@@ -79,41 +83,27 @@ jobs:
 
           cat /tmp/api.log
           exit 1
-      
-      # - name: Vérification des routes avant ZAP
-      #   run: |
-      #     set -euo pipefail
 
-      #     curl --fail-with-body --silent --show-error \
-      #       "http://127.0.0.1:8000/api/categories?page=1"
-
-      #     curl --fail-with-body --silent --show-error \
-      #       "http://127.0.0.1:8000/api/ressources?page=1"
       - name: Vérification des routes avant ZAP
         run: |
-          echo "===== /api/categories ====="
-          curl --silent --show-error --include \
-            "http://127.0.0.1:8000/api/categories?page=1" || true
+          set -euo pipefail
 
-          echo ""
-          echo "===== /api/ressources ====="
-          curl --silent --show-error --include \
-            "http://127.0.0.1:8000/api/ressources?page=1" || true
+          curl --fail-with-body --silent --show-error \
+            "http://127.0.0.1:8000/api/categories?page=1"
 
-          echo ""
-          echo "===== LOGS API ====="
-          tail -n 200 /tmp/api.log || true
-            
-      # - name: Scan OWASP ZAP
-      #   uses: zaproxy/action-api-scan@v0.10.0
-      #   with:
-      #     target: "http://127.0.0.1:8000/api/docs.jsonopenapi"
-      #     format: openapi
-      #     rules_file_name: ".zap/rules.tsv"
-      #     allow_issue_writing: false
-      #     fail_action: true
-      #     cmd_options: "-I"
+          curl --fail-with-body --silent --show-error \
+            "http://127.0.0.1:8000/api/ressources?page=1"
 
-      # - name: Affichage des logs en cas d'échec
-      #   if: failure()
-      #   run: tail -n 200 /tmp/api.log || true
+      - name: Scan OWASP ZAP
+        uses: zaproxy/action-api-scan@v0.10.0
+        with:
+          target: "http://127.0.0.1:8000/api/docs.jsonopenapi"
+          format: openapi
+          rules_file_name: ".zap/rules.tsv"
+          allow_issue_writing: false
+          fail_action: true
+          cmd_options: "-I"
+
+      - name: Affichage des logs en cas d'échec
+        if: failure()
+        run: tail -n 200 /tmp/api.log || true
