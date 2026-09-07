@@ -38,7 +38,7 @@ jobs:
     env:
       APP_ENV: test
       APP_DEBUG: "0"
-      DATABASE_URL: "mysql://ressources:ressources@127.0.0.1:3306/projetcollab_test?serverVersion=8.4&charset=utf8mb4"
+      DATABASE_URL: "mysql://ressources:ressources@127.0.0.1:3306/projetcollab?serverVersion=8.4&charset=utf8mb4"
 
     steps:
       - name: Récupération du code
@@ -103,4 +103,4 @@ jobs:
 
       - name: Affichage des logs en cas d'échec
         if: failure()
-        run: tail -n 200 /tmp/api.log
+        run: tail -n 200 /tmp/api.log || true
