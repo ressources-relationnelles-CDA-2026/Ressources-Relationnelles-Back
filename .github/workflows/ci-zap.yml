@@ -62,7 +62,11 @@ jobs:
 
       - name: Démarrage de l'API
         run: |
-          php -d expose_php=0 -S 0.0.0.0:8000 -t public > /tmp/api.log 2>&1 &
+          php -d variables_order=EGPCS \
+              -d expose_php=0 \
+              -S 0.0.0.0:8000 \
+              -t public > /tmp/api.log 2>&1 &
+
           echo $! > api.pid
 
       - name: Attente du démarrage
@@ -79,7 +83,7 @@ jobs:
 
           cat /tmp/api.log
           exit 1
-      
+
       - name: Vérification des routes avant ZAP
         run: |
           set -euo pipefail
@@ -90,7 +94,6 @@ jobs:
           curl --fail-with-body --silent --show-error \
             "http://127.0.0.1:8000/api/ressources?page=1"
 
-            
       - name: Scan OWASP ZAP
         uses: zaproxy/action-api-scan@v0.10.0
         with:
@@ -103,4 +106,4 @@ jobs:
 
       - name: Affichage des logs en cas d'échec
         if: failure()
-        run: tail -n 200 /tmp/api.log
+        run: tail -n 200 /tmp/api.log || true
