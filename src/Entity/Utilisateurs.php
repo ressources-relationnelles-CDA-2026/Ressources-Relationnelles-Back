@@ -53,7 +53,7 @@ class Utilisateurs implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\NotBlank(message: 'Le nom est obligatoire.')]
     #[Assert\Length(
         max: 255,
-        maxMessage: 'Le nom ne peut pas dépasser {{ limit }} caractères.'
+        maxMessage: 'Le nom ne doit pas dépasser {{ limit }} caractères.'
     )]
     private ?string $nom = null;
 
